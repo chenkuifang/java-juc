@@ -1,2 +1,2 @@
 # java-juc
-java util concurrent package
+java util concurrent package learing
