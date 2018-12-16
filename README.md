@@ -16,7 +16,7 @@
 - volatile与synchronizde不同点
   1. volatile不具备"互斥性"
   2. volatile 不能保证变量的"原子性"  
-  ``` java
+ ``` java
   public class VolatileTest {
     private volatile int i = 0;
 
@@ -28,11 +28,11 @@
                     .start();
         }
     }
-
     private int add() {
         return i++;
     }
+ }
 }
 ```  
-以上代码是启动10个线程操作add()方法，同时对共享资源i进行操作，如果不使用同步策略或volatile关键字修饰i的话，那么得到的结果存在并发问题
+**以上代码是启动10个线程操作add()方法，同时对共享资源i进行操作，如果不使用同步策略或volatile关键字修饰i的话，那么得到的结果存在并发问题**
 
