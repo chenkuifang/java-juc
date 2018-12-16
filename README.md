@@ -5,7 +5,7 @@
 的 Collection 实现等;**  
 **java.util.concurrent包总览**  
 ![3](https://github.com/chenkuifang/java-juc/blob/master/3.png)  
-![2](https://github.com/chenkuifang/java-juc/blob/master/2.png)  
+![2](https://github.com/chenkuifang/java-juc/blob/master/22.png)  
 ![1](https://github.com/chenkuifang/java-juc/blob/master/1.png)  
 ![4](https://github.com/chenkuifang/java-juc/blob/master/4.png)  
 ## 2.volatile关键字   
