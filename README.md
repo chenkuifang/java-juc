@@ -114,6 +114,68 @@ public class AtomicTest {
 ``` 
 **运行以上代码，存在数结果不是99的情况,当某个两个线程同时读取到i的一样时候，就会出现结果错误。即使加上了volatile修饰i,也阻止不了加操作的同时进行，这个一个原子性问题。**
 **使用原子变量即可解决以上问题。如 AtomicInteger**
-**https://blog.csdn.net/qq_31580305/article/details/79736226**
 
+**java.util.concurrent.atomic包提供了一些常用的原子变量类**
+- AtomicInteger,AtomicBoolean,AtomicLong,AtomicReference
+- AtomicIntegerArray,AtomicLongArray
+- AtomicMarkableReference 
+- AtomicReferenceArray
+- AtomicStampedReference
 
+## 4.CAS算法  
+
+- CAS(Compare-And-Swap) 算法是硬件对于并发的支持,针对多处理器操作而设计的处理器中的一种特殊指令,用于管理对共享数据的并发访问;
+- CAS 是一种无锁的非阻塞算法的实现;
+- CAS 包含了三个操作数:
+    1. 需要读写的内存值: V
+    2. 进行比较的预估值: A
+    3. 拟写入的更新值: B
+    4. 当且仅当 V == A 时, V = B, 否则,将不做任何操作;
+**以下是模拟CAS算法代码** 
+ 
+```
+public class TestCompareAndSwap {
+
+    @Test
+    public void test1() {
+        final CompareAndSwap cas = new CompareAndSwap();
+
+        for (int i = 0; i < 10; i++) {
+            // 创建10个线程,模拟多线程环境
+            new Thread(() -> {
+                Object expectedValue = cas.getValue();
+                boolean b = cas.compareAndSet(expectedValue, (int) (Math.random() * 100));
+                System.out.println(b);
+            }).start();
+        }
+    }
+
+}
+
+class CompareAndSwap {
+    private volatile Object value;
+
+    // 读取内存中的值
+    public synchronized Object getValue() {
+        return value;
+    }
+
+    // 比较
+    public synchronized Object compareAndSwap(Object expectedValue, Object updateValue) {
+        Object oldValue = value;
+
+        if (oldValue == expectedValue) {
+            this.value = updateValue;
+        }
+
+        // 最后返回旧值
+        return oldValue;
+    }
+
+    // 设置值
+    public synchronized boolean compareAndSet(Object expectedValue, Object updateValue) {
+        return expectedValue == compareAndSwap(expectedValue, updateValue);
+    }
+}
+```   
+## 5.ConcurrentHashMap 锁分段机制  
