@@ -4,8 +4,8 @@
 用于定义类似于线程的自定义子系统,包括线程池,异步 IO 和轻量级任务框架;还提供了设计用于多线程上下文中
 的 Collection 实现等;**  
 **java.util.concurrent包总览**  
-![1](https://github.com/chenkuifang/java-juc/blob/master/1.png)
-![2](https://github.com/chenkuifang/java-juc/blob/master/2.png)
-![3](https://github.com/chenkuifang/java-juc/blob/master/3.png)
-![4](https://github.com/chenkuifang/java-juc/blob/master/4.png)
+![3](https://github.com/chenkuifang/java-juc/blob/master/3.png)  
+![2](https://github.com/chenkuifang/java-juc/blob/master/2.png)  
+![1](https://github.com/chenkuifang/java-juc/blob/master/1.png)  
+![4](https://github.com/chenkuifang/java-juc/blob/master/4.png)  
 ## 2.volatile关键字   
