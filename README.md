@@ -179,3 +179,7 @@ class CompareAndSwap {
 }
 ```   
 ## 5.ConcurrentHashMap 锁分段机制  
+**ConcurrentHashMap同步容器类是java5增加的一种线程安全的哈希表。对于多线程操作，介于HashMap和HashTable之间。内部采用了“锁分段”机制，替换了HashTable的独占锁，进而提高了性能。**  
+**我们知道HashMap与HashTable的区别在线程安全与线程不安全，HashTable采用了独占锁的方式，当多个线程同时访问HashTable的时候，最多只能有一个线程访问(并行转串行),所以效率不高。并且会存在符合操作不安全的情况**
+**ConcurrentHashMap的“锁分段”机制是把每个HashMap默认分为16个并发级别(ConcurrentLevel),每个级别分为一个段(segment),每个段中存放16个Entry,这样每个段维护一个独立的锁，当多个线程同时访问HashMap的时候，可以并行执行。**
+**注意：ConcurrentHashMap在jdk1.8后“锁分段”机制被CAS替换。使用更轻量的安全机制。**
