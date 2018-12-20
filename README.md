@@ -183,3 +183,152 @@ class CompareAndSwap {
 **我们知道HashMap与HashTable的区别在线程安全与线程不安全，HashTable采用了独占锁的方式，当多个线程同时访问HashTable的时候，最多只能有一个线程访问(并行转串行),所以效率不高。并且会存在符合操作不安全的情况**
 **ConcurrentHashMap的“锁分段”机制是把每个HashMap默认分为16个并发级别(ConcurrentLevel),每个级别分为一个段(segment),每个段中存放16个Entry,这样每个段维护一个独立的锁，当多个线程同时访问HashMap的时候，可以并行执行。**
 **注意：ConcurrentHashMap在jdk1.8后“锁分段”机制被CAS替换。使用更轻量的安全机制。**
+**此包还提供了用于设计多线程上下文中的Collection实现：**  
+**ConcurrentHashMap,ConcurrentSkipListMap,ConcurrentSkipListSet,CopyOnWriteArrayList,CopyOnWriteArraySet.**  
+**当许多线程访问同一个Collection时,通常ConcurrentHashMap要比同步的HashMap效率高，ConcurrentSkipListMap通常优于同步的TreeMap.**  
+**当读数和遍历数远远大于更新的时候，CopyOnWriteArrayList通常优于同步的ArrayList.**  
+
+## 6.CountDownLatch 闭锁  
+- CountDownLatch 是juc包提供的一个同步辅助类。
+- CountDownLatch 它可以让一组或一个线程在执行完成某个操作前，出于等待状态。如同所有运动员在没有做好预备的动作前，先做好预备的运动员必须等待其他没有做好预备的运动员。
+  直到所有运动员都做好了预备，才开始跑步。
+- 使用场景
+  1. 确保某个计算在其需要的所有资源都执行完毕才继续执行（如启动游戏时，先加载完毕再执行其他）。
+  2. 确保某个服务在其需要的其他所有服务都启动之后再启动。
+  3. 等待直到某个操作的所有参与者都准备完成了才继续执行（运动员例子）。 
+   
+``` 
+public class CountDownLatchTest {
+
+    private static volatile CountDownLatch countDownLatch = new CountDownLatch(5);
+
+    /**
+     * Boss线程，等待员工到达开会
+     */
+    static class BossThread extends Thread {
+        @Override
+        public void run() {
+            System.out.println("Boss在会议室等待，总共有" + countDownLatch.getCount() + "个人开会...");
+            try {
+
+                //Boss等待
+                countDownLatch.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            System.out.println("所有人都已经到齐了，开会吧...");
+        }
+    }
+
+    // 员工到达会议室线程
+    static class EmployeeThread extends Thread {
+        @Override
+        public void run() {
+            System.out.println(Thread.currentThread().getName() + "，到达会议室....");
+            //员工到达会议室 count - 1
+            countDownLatch.countDown();
+        }
+    }
+
+    @Test
+    public void test() {
+        //Boss线程启动
+        new BossThread().start();
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+        }
+
+        for (int i = 0; i < countDownLatch.getCount(); i++) {
+            new EmployeeThread().start();
+        }
+    }
+
+}
+```  
+# 7.Callable接口实现有返回的线程  
+**复习：创建线程方式有4种**
+- 继承Thread类，-->重新run() --> 启动：new MyThread().start()
+- 实现Runnable接口,--->重写run()--->启动：new Thread(new MyRunnable()).start()
+- 实现Callable接口(配合ExecutorService使用)，--->重写call()--->创建线程池：ExecutorService executorService = Executors.newFixedThreadPool(5);
+  Future result = executorService.submit(new MyCallable()); -->result.get() 获取返回值
+- 当然还可以使用JDK提供的线程池创建方式，一般使用Executors工具类。  
+**首先说一下什么任务：实现Callable接口或Runnable接口的类，其实例就可以成为一个任务提交给ExecutorService去执行,这样的好处是任务和执行解耦。
+其中Callable任务可以返回执行结果，Runnable任务无返回结果；**  
+
+**通过Executors工具类可以创建各种类型的线程池，如下为常见的四种：**
+- newCachedThreadPool ：大小不受限，当线程释放时，可重用该线程；
+- newFixedThreadPool ：大小固定，无可用线程时，任务需等待，直到有可用线程；
+- newSingleThreadExecutor ：创建一个单线程，任务会按顺序依次执行；
+- newScheduledThreadPool：创建一个定长线程池，支持定时及周期性任务执行。  
+``` 
+    /**
+     * 创建一个单线程执行器
+     */
+    @Test
+    public void test1() {
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService.submit(new Task());
+        executorService.shutdown();
+    }
+
+    class Task implements Runnable {
+        @Override
+        public void run() {
+            System.err.println("running...");
+        }
+    }
+``` 
+``` 
+    /**
+     * 创建一个指定大小的线程池，并提交一个有返回的任务
+     * <p>
+     * 使用场景：
+     * FutureTask可用于异步获取执行结果或取消执行任务的场景。通过传入Runnable或者Callable的任务给FutureTask
+     * ，直接调用其run方法或者放入线程池执行，之后可以在外部通过FutureTask的get方法异步获取执行结果，
+     * 因此，FutureTask非常适合用于耗时的计算，主线程可以在完成自己的任务后，
+     * 再去获取结果。另外，FutureTask还可以确保即使调用了多次run方法，它都只会执行一次Runnable或者Callable任务
+     * ，或者通过cancel取消FutureTask的执行等。
+     */
+    @Test
+    public void test2() throws ExecutionException, InterruptedException {
+        ExecutorService executorService = Executors.newFixedThreadPool(5);
+        Future result = executorService.submit(new CallBackTask());
+
+        // 模拟主线程执行时间6S
+        System.err.println(Thread.currentThread().getName());
+        Thread.sleep(6000);
+
+        // 主线程可以在完成自己的任务后，再去获取结果
+        System.err.println(result.get()); //  get()方法会使所在线程阻塞，直到返回结果。
+        executorService.shutdown();
+    }
+
+    /**
+     * 注意：get()方法会使所在线程阻塞，直到返回结果。
+     */
+    class CallBackTask implements Callable<String> {
+        @Override
+        public String call() {
+            try {
+                System.err.println(Thread.currentThread().getName());
+                Thread.sleep(5000);
+                System.err.println(Thread.currentThread().getName() + "执行完成");
+            } catch (InterruptedException e) {
+
+            }
+            return "I'm callback info!!";
+        }
+    }
+``` 
+# 8.同步锁 Lock
+**JDK1.5之前同步使用Synchronized和volatile，JDK1.5后增加了显示锁Lock。**
+- Synchronized属于内置的一种隐式锁。同步方式有两种
+  1. 同步块
+  2. 同步方法
+- Lock 是JDK1.5后现在的显示锁，使用lock()获取锁，然后使用unlock()方法释放锁。
+**Lock接口主要有两个实现类1.ReentrantLock(公平/非公平锁) 2.ReentrantReadWriteLock(读写锁)**  
+**Lock相对于synchronized更灵活，粒度更细，需要手动获取锁和释放锁。**
+
