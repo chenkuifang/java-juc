@@ -37,7 +37,7 @@
 **以上代码是启动10个线程操作add()方法，同时对共享资源i进行操作，如果不使用同步策略或volatile关键字修饰i的话，那么得到的结果存在并发问题**  
 
 **尚硅谷例子**  
-```
+``` java
 // 使用 volatile 之前
 public class TestVolatile{
  
@@ -94,7 +94,7 @@ class ThreadDemo implements Runnable{
             1. CAS算法：硬件对于并发操作共享资源的支持
                1. CAS 包含三个操作数：内存值 V .预估值 A. 更新值 B.
                2. 特性：当且仅当V==A时，才会执行V = B，否则不做任何操作
-```               
+``` java              
 public class AtomicTest {
 
     // 如果使用volatile 也不能保证数据操作的原子性，问题依然存在。
@@ -133,7 +133,7 @@ public class AtomicTest {
     4. 当且仅当 V == A 时, V = B, 否则,将不做任何操作;
 **以下是模拟CAS算法代码** 
  
-```
+``` java
 public class TestCompareAndSwap {
 
     @Test
@@ -197,7 +197,7 @@ class CompareAndSwap {
   2. 确保某个服务在其需要的其他所有服务都启动之后再启动。
   3. 等待直到某个操作的所有参与者都准备完成了才继续执行（运动员例子）。 
    
-``` 
+``` java
 public class CountDownLatchTest {
 
     private static volatile CountDownLatch countDownLatch = new CountDownLatch(5);
@@ -263,7 +263,7 @@ public class CountDownLatchTest {
 - newFixedThreadPool ：大小固定，无可用线程时，任务需等待，直到有可用线程；
 - newSingleThreadExecutor ：创建一个单线程，任务会按顺序依次执行；
 - newScheduledThreadPool：创建一个定长线程池，支持定时及周期性任务执行。  
-``` 
+``` java
     /**
      * 创建一个单线程执行器
      */
@@ -281,7 +281,7 @@ public class CountDownLatchTest {
         }
     }
 ``` 
-``` 
+``` java
     /**
      * 创建一个指定大小的线程池，并提交一个有返回的任务
      * <p>
